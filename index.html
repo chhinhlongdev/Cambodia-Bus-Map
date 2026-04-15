@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cambodia Bus Map | ផែនទីឡានក្រុង</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <i class="fas fa-bus"></i>
+        <div class="logo-text">
+          <span class="logo-en">Cambodia Bus Map</span>
+          <span class="logo-kh">ផែនទីឡានក្រុង</span>
+        </div>
+      </div>
+      <nav class="nav" id="mainNav">
+        <a href="#" class="nav-link active" data-page="map"><i class="fas fa-map"></i> Map</a>
+        <a href="#" class="nav-link" data-page="routes"><i class="fas fa-route"></i> Routes</a>
+        <a href="#" class="nav-link" data-page="schedule"><i class="fas fa-clock"></i> Schedule</a>
+        <a href="#" class="nav-link" data-page="about"><i class="fas fa-info-circle"></i> About</a>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- PAGES -->
+  <main class="main">
+
+    <!-- MAP PAGE -->
+    <div class="page active" id="page-map">
+      <div class="map-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+          <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+            <i class="fas fa-chevron-left" id="sidebarIcon"></i>
+          </button>
+
+          <div class="sidebar-content">
+            <div class="search-section">
+              <h3><i class="fas fa-search"></i> Find a Route</h3>
+              <div class="search-group">
+                <div class="input-wrap">
+                  <i class="fas fa-circle from-icon"></i>
+                  <input type="text" id="fromInput" placeholder="From city..." autocomplete="off" />
+                  <div class="autocomplete-list" id="fromList"></div>
+                </div>
+                <button class="swap-btn" id="swapBtn" title="Swap cities">
+                  <i class="fas fa-exchange-alt"></i>
+                </button>
+                <div class="input-wrap">
+                  <i class="fas fa-map-marker-alt to-icon"></i>
+                  <input type="text" id="toInput" placeholder="To city..." autocomplete="off" />
+                  <div class="autocomplete-list" id="toList"></div>
+                </div>
+                <button class="search-btn" id="searchBtn">
+                  <i class="fas fa-search"></i> Search
+                </button>
+              </div>
+            </div>
+
+            <div class="filter-section">
+              <h3><i class="fas fa-filter"></i> Filters</h3>
+              <div class="filter-group">
+                <p class="filter-label">Company</p>
+                <label class="checkbox-label"><input type="checkbox" class="company-filter" value="Giant Ibis" checked /> <span class="dot" style="background:#e74c3c"></span> Giant Ibis</label>
+                <label class="checkbox-label"><input type="checkbox" class="company-filter" value="Mekong Express" checked /> <span class="dot" style="background:#3498db"></span> Mekong Express</label>
+                <label class="checkbox-label"><input type="checkbox" class="company-filter" value="Capitol Tour" checked /> <span class="dot" style="background:#2ecc71"></span> Capitol Tour</label>
+                <label class="checkbox-label"><input type="checkbox" class="company-filter" value="Virak Buntham" checked /> <span class="dot" style="background:#9b59b6"></span> Virak Buntham</label>
+                <label class="checkbox-label"><input type="checkbox" class="company-filter" value="Local" checked /> <span class="dot" style="background:#f39c12"></span> Local</label>
+              </div>
+              <div class="filter-group">
+                <p class="filter-label">Bus Type</p>
+                <label class="checkbox-label"><input type="checkbox" class="type-filter" value="express" checked /> <i class="fas fa-bolt"></i> Express</label>
+                <label class="checkbox-label"><input type="checkbox" class="type-filter" value="local" checked /> <i class="fas fa-bus"></i> Local</label>
+                <label class="checkbox-label"><input type="checkbox" class="type-filter" value="night" checked /> <i class="fas fa-moon"></i> Night Bus</label>
+              </div>
+            </div>
+
+            <div class="route-list-section">
+              <h3><i class="fas fa-list"></i> Routes <span id="routeCount" class="badge">0</span></h3>
+              <div class="route-list" id="routeList"></div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Map -->
+        <div class="map-container">
+          <div id="map"></div>
+          <div class="map-controls">
+            <button class="map-ctrl-btn" id="locateBtn" title="My Location"><i class="fas fa-crosshairs"></i></button>
+            <button class="map-ctrl-btn" id="resetBtn" title="Reset View"><i class="fas fa-home"></i></button>
+            <div class="layer-switcher">
+              <button class="map-ctrl-btn" id="layerBtn" title="Change Layer"><i class="fas fa-layer-group"></i></button>
+              <div class="layer-menu" id="layerMenu">
+                <button class="layer-opt active" data-layer="light">Light</button>
+                <button class="layer-opt" data-layer="street">Street</button>
+                <button class="layer-opt" data-layer="dark">Dark</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROUTES PAGE -->
+    <div class="page" id="page-routes">
+      <div class="page-content">
+        <div class="page-header">
+          <h2><i class="fas fa-route"></i> All Bus Routes</h2>
+          <p>Browse all available bus routes across Cambodia</p>
+        </div>
+        <div class="routes-grid" id="routesGrid"></div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE PAGE -->
+    <div class="page" id="page-schedule">
+      <div class="page-content">
+        <div class="page-header">
+          <h2><i class="fas fa-clock"></i> Bus Schedule</h2>
+          <p>View departure times and availability</p>
+        </div>
+        <div class="schedule-select-wrap">
+          <label for="routeSelect">Select Route:</label>
+          <select id="routeSelect" class="route-select"></select>
+        </div>
+        <div id="scheduleTable"></div>
+      </div>
+    </div>
+
+    <!-- ABOUT PAGE -->
+    <div class="page" id="page-about">
+      <div class="page-content">
+        <div class="page-header">
+          <h2><i class="fas fa-info-circle"></i> About Cambodia Bus Map</h2>
+          <p>Your guide to bus travel across the Kingdom of Wonder</p>
+        </div>
+        <div class="about-cards">
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-bullseye"></i></div>
+            <h3>Our Mission</h3>
+            <p>Making bus travel in Cambodia easy and accessible for everyone — locals and tourists alike. We provide real-time route info, schedules, and pricing.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-building"></i></div>
+            <h3>Bus Companies</h3>
+            <p>We partner with Cambodia's top operators: Giant Ibis, Mekong Express, Capitol Tour, and Virak Buntham — covering the entire country.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-map-marked-alt"></i></div>
+            <h3>Coverage</h3>
+            <p>Over 18 routes connecting 16+ cities from Phnom Penh to remote provinces like Ratanakiri and Mondulkiri.</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon"><i class="fas fa-mobile-alt"></i></div>
+            <h3>Mobile Friendly</h3>
+            <p>Fully responsive design works on any device. Plan your journey on the go, anywhere in Cambodia.</p>
+          </div>
+        </div>
+
+        <div class="contact-section">
+          <h3><i class="fas fa-envelope"></i> Contact Us</h3>
+          <form class="contact-form" id="contactForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Name</label>
+                <input type="text" placeholder="Your name" required />
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="your@email.com" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Message</label>
+              <textarea rows="5" placeholder="Your message..." required></textarea>
+            </div>
+            <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="routeModal">
+      <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="footer-logo">
+          <i class="fas fa-bus"></i>
+          <span>Cambodia Bus Map</span>
+        </div>
+        <p class="footer-desc">Your trusted guide for bus travel across Cambodia. Safe travels!</p>
+        <p class="footer-kh">ផែនទីឡានក្រុងកម្ពុជា</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#" data-page="map"><i class="fas fa-map"></i> Map</a></li>
+          <li><a href="#" data-page="routes"><i class="fas fa-route"></i> Routes</a></li>
+          <li><a href="#" data-page="schedule"><i class="fas fa-clock"></i> Schedule</a></li>
+          <li><a href="#" data-page="about"><i class="fas fa-info-circle"></i> About</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Popular Routes</h4>
+        <ul>
+          <li><a href="#" class="footer-route" data-from="pnh" data-to="srp">Phnom Penh → Siem Reap</a></li>
+          <li><a href="#" class="footer-route" data-from="pnh" data-to="svk">Phnom Penh → Sihanoukville</a></li>
+          <li><a href="#" class="footer-route" data-from="pnh" data-to="kpt">Phnom Penh → Kampot</a></li>
+          <li><a href="#" class="footer-route" data-from="pnh" data-to="btb">Phnom Penh → Battambang</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Follow Us</h4>
+        <div class="social-links">
+          <a href="#" class="social-btn facebook" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-btn telegram" aria-label="Telegram"><i class="fab fa-telegram-plane"></i></a>
+          <a href="#" class="social-btn instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-btn youtube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p class="footer-contact"><i class="fas fa-envelope"></i> info@cambodiabusmap.com</p>
+        <p class="footer-contact"><i class="fas fa-phone"></i> +855 23 000 000</p>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <p>&copy; 2026 Cambodia Bus Map. All rights reserved. | Made with <i class="fas fa-heart"></i> in Cambodia</p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
